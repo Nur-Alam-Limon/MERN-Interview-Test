@@ -4,10 +4,12 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Drawing = require('./models/drawing');
 const sampleData = require('./sample-data');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 app.use(bodyParser.json());
 
 mongoose.connect('mongodb://localhost:27017/drawings', {
@@ -41,6 +43,7 @@ app.post('/api/drawings', async (req, res) => {
 // Get all drawings
 app.get('/api/drawings', async (req, res) => {
   try {
+    console.log('hello');
     const allDrawings = await Drawing.find();
     res.status(200).json(allDrawings);
   } catch (error) {
@@ -52,7 +55,9 @@ app.get('/api/drawings', async (req, res) => {
 // Get a specific drawing by ID
 app.get('/api/drawings/:id', async (req, res) => {
   try {
+    console.log("Called");
     const drawing = await Drawing.findById(req.params.id);
+    console.log("Drawing", drawing);
     if (!drawing) {
       return res.status(404).json({ error: 'Drawing not found' });
     }

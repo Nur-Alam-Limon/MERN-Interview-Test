@@ -1,12 +1,9 @@
-import Link from 'next/link';
+// pages/index.js
+import React from 'react';
+import App from './App';
 
 const Home = () => {
-  return (
-    <div>
-      <h1>Whiteboard App</h1>
-      <Link href="/drawingList">View All Drawings</Link>
-    </div>
-  );
+  return <App />
 };
 
 export default Home;
