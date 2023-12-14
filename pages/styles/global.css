@@ -28,6 +28,7 @@ button{
     border-radius: 10px;
     background-color: black;
     color: white;
+    cursor: pointer;
 }
 
 input{
@@ -42,4 +43,8 @@ input{
     margin: 20px;
     display: inline-block;
     width: 80vw;
+  }
+
+  .drawings{
+   margin: 20px 100px;
   }

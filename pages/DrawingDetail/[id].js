@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { Stage, Layer, Line, Rect, Circle, Text } from 'react-konva';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const DrawingDetail = () => {
   const router = useRouter();
   const { id } = router.query;
   const [drawing, setDrawing] = useState(null);
   const [loading, setLoading] = useState(true);
-  const canvasRef = useRef(null);
 
   useEffect(() => {
     // Fetch drawing details based on the ID from the URL
@@ -24,52 +24,6 @@ const DrawingDetail = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    // Draw on the canvas when the drawing data is available
-    if (drawing && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-
-      // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw lines
-      drawing.lines.forEach(line => {
-        context.beginPath();
-        context.strokeStyle = line.color;
-        context.lineWidth = line.strokeWidth;
-        line.points.forEach((point, index) => {
-          if (index === 0) {
-            context.moveTo(point.x, point.y);
-          } else {
-            context.lineTo(point.x, point.y);
-          }
-        });
-        context.stroke();
-      });
-
-      // Draw shapes (for example, rectangles and circles)
-      drawing.shapes.forEach(shape => {
-        context.beginPath();
-        context.fillStyle = shape.color;
-        // Render shapes based on their type, position, and size
-        if (shape.type === 'rectangle') {
-          context.rect(shape.position.x, shape.position.y, shape.size.width, shape.size.height);
-        } else if (shape.type === 'circle') {
-          context.arc(shape.position.x, shape.position.y, shape.size.width / 2, 0, 2 * Math.PI);
-        }
-        context.fill();
-      });
-
-      // Draw text annotations
-      drawing.textAnnotations.forEach(textAnnotation => {
-        context.fillStyle = textAnnotation.color;
-        context.font = `${textAnnotation.fontSize}px Arial`;
-        context.fillText(textAnnotation.text, textAnnotation.position.x, textAnnotation.position.y);
-      });
-    }
-  }, [drawing]);
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -82,7 +36,60 @@ const DrawingDetail = () => {
     <div>
       <h1>Drawing Detail</h1>
       <p>Name: {drawing.name}</p>
-      <canvas ref={canvasRef} width={800} height={600} style={{ border: '1px solid #000' }} />
+      <div className='drawings'>
+      <Stage width={800} height={600}>
+        <Layer>
+          {/* Draw lines */}
+          {drawing.lines.map((line, i) => (
+            <Line
+              key={i}
+              points={line.points.reduce((acc, point) => acc.concat(point.x, point.y), [])}
+              stroke={line.color}
+              strokeWidth={line.strokeWidth}
+            />
+          ))}
+
+          {/* Draw shapes */}
+          {drawing.shapes.map((shape, i) => {
+            if (shape.type === 'rectangle') {
+              return (
+                <Rect
+                  key={i}
+                  x={shape.position.x}
+                  y={shape.position.y}
+                  width={shape.size.width}
+                  height={shape.size.height}
+                  fill={shape.color}
+                />
+              );
+            } else if (shape.type === 'circle') {
+              return (
+                <Circle
+                  key={i}
+                  x={shape.position.x}
+                  y={shape.position.y}
+                  radius={shape.size.width / 2}
+                  fill={shape.color}
+                />
+              );
+            }
+            return null;
+          })}
+
+          {/* Draw text annotations */}
+          {drawing.textAnnotations.map((textAnnotation, i) => (
+            <Text
+              key={i}
+              x={textAnnotation.position.x}
+              y={textAnnotation.position.y}
+              text={textAnnotation.text}
+              fontSize={textAnnotation.fontSize}
+              fill={textAnnotation.color}
+            />
+          ))}
+        </Layer>
+      </Stage>
+      </div>
     </div>
   );
 };
